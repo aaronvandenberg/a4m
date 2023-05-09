@@ -78,6 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
               <body>
                 <div>
                   <audio controls>
+                     <br>
                     <source src="${audio}">
                   </audio>
                 </div>
