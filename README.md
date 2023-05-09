@@ -1,4 +1,4 @@
-<h1 align="center" style="color:black">
+<h1 align="center">
 A4M Audio For The Masses
 </h1>
 
