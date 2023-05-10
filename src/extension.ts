@@ -11,8 +11,24 @@ const internalAudioSources: AudioSource[] = [
     audios: ["https://ia600108.us.archive.org/1/items/TheodoreJohnKaczynskiIndustrialSocietyAndItsFuture1995www.MP3Fiber.com/Theodore_John_Kaczynski_Industrial_Society_and_Its_Future_1995%5Bwww.MP3Fiber.com%5D.mp3"],
   },
   {
-    label: "Calm",
-    audios: ["https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"],
+    label: "Invisible Man Chapters 01-02",
+    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_01-02_wells.mp3"],
+  },
+  {
+    label: "Invisible Man Chapters 03-04",
+    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_03-04_wells-2.mp3"],
+  },
+  {
+    label: "Invisible Man Chapters 05-07",
+    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_05-07_wells.mp3"],
+  },
+  {
+    label: "Invisible Man Chapters 08-10",
+    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_08-10_wells.mp3"],
+  },
+  {
+    label: "Invisible Man Chapters 11-12",
+    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_11-12_wells.mp3"],
   },
   {
     label: "Lively",
