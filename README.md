@@ -1,6 +1,11 @@
 <h1 align="center">
-A4M Audio For The Masses
+A4M Audiobooks For The Masses
 </h1>
+<p>Liste to Audiobooks while you code</p>
+
+## Link to download extension
+
+https://marketplace.visualstudio.com/items?itemName=vdbsolutions.a4m&ssr=false#review-details
 
 
 ## Prerequisites
