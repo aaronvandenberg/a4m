@@ -1,48 +1,26 @@
+import axios from 'axios';
 import * as vscode from 'vscode';
 
-type AudioSource = {
-  label: string;
-  audios: string[];
+type Book = {
+  title: string;
+  authorName: string;
+  urlLibrivox: string;
 };
 
-const internalAudioSources: AudioSource[] = [
-  {
-    label: "Industrial Society And Its Future",
-    audios: ["https://ia600108.us.archive.org/1/items/TheodoreJohnKaczynskiIndustrialSocietyAndItsFuture1995www.MP3Fiber.com/Theodore_John_Kaczynski_Industrial_Society_and_Its_Future_1995%5Bwww.MP3Fiber.com%5D.mp3"],
-  },
-  {
-    label: "Invisible Man Chapters 01-02",
-    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_01-02_wells.mp3"],
-  },
-  {
-    label: "Invisible Man Chapters 03-04",
-    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_03-04_wells-2.mp3"],
-  },
-  {
-    label: "Invisible Man Chapters 05-07",
-    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_05-07_wells.mp3"],
-  },
-  {
-    label: "Invisible Man Chapters 08-10",
-    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_08-10_wells.mp3"],
-  },
-  {
-    label: "Invisible Man Chapters 11-12",
-    audios: ["https://ia800705.us.archive.org/14/items/invisible_man_librivox/invisible_man_11-12_wells.mp3"],
-  },
-  {
-    label: "Lively",
-    audios: ["https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"],
-  },
-];
+function formatBookTitle(book: Book) {
+  const title = book.title;
+  const authorName = book.authorName;
+  return `${title} - ${authorName}`;
+}
+
+interface MediaQuickPickItem extends vscode.QuickPickItem {
+  data?: {
+    sourceType: string;
+    url: string;
+  };
+}
 
 export function activate(context: vscode.ExtensionContext) {
-  const userAudioSources: AudioSource[] = vscode.workspace
-    .getConfiguration()
-    .get("a4m.customAudioSources") || [];
-
-  const audioSources = internalAudioSources.concat(userAudioSources);
-
   let disposable = vscode.commands.registerCommand("a4m.playAudio", () => {
     const column = {
       viewColumn: vscode.ViewColumn.Beside,
@@ -51,57 +29,59 @@ export function activate(context: vscode.ExtensionContext) {
 
     const options = { enableScripts: true };
 
-    const mediaItems: vscode.QuickPickItem[] = audioSources.flatMap((source) => {
-      return source.audios.map((audioPath) => {
-        return {
-          label: source.label,
-          detail: "Audio", // Set detail to "Audio" to indicate that the selected item is an audio file
-          alwaysShow: true,
-        };
-      });
-    });
+    const LIBRIVOX_API_ENDPOINT = 'https://librivox.org/api/feed/audiobooks';
+    const author = 'Jane Austen';
+    const apiUrl = `${LIBRIVOX_API_ENDPOINT}?format=json&fields=title,author_name,url_librivox&extended=1&author=${author}&limit=10&offset=0`;
 
-    vscode.window
-      .showQuickPick(mediaItems, {
-        placeHolder: "Choose your Audio Book",
-      })
-      .then((selection) => {
-        if (!selection) {
-          return;
-        }
-        if (selection.detail === "Audio") {
-          const selectedSource = audioSources.find(
-            (source) => source.audios.includes(selection.label)
-          );
-          if (!selectedSource) {
-            return;
-          }
-          const { audios } = selectedSource;
-          const audio = audios.sort(() => Math.random() - 0.5)[0];
-          const panel = vscode.window.createWebviewPanel(
-            "a4m", // Identifies the type of the webview
-            "Audio for the masses", // Title of the panel displayed to the user
-            column, // Editor column to show the new webview panel in
-            options // Webview options
-          );
-          panel.reveal();
-          panel.webview.html = `
-            <html lang="en"> 
-              <head>
-                <meta charset="utf-8"/>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              </head>
-              <body>
-                <div>
-                  <audio controls>
-                     <br>
-                    <source src="${audio}">
-                  </audio>
-                </div>
-              </body>
-            </html>
-          `;
-        }
+    axios.get(apiUrl)
+      .then((response) => {
+        const books = response.data.books;
+
+        const mediaItems: MediaQuickPickItem[] = books.map((book: Book) => {
+          return {
+            label: formatBookTitle(book),
+            alwaysShow: true,
+            data: {
+              sourceType: 'librivox',
+              url: book.urlLibrivox,
+            },
+          };
+        });
+
+        vscode.window
+          .showQuickPick(mediaItems, {
+            placeHolder: "Choose your Audiobook",
+          })
+          .then((selection) => {
+            if (!selection) {
+              return;
+            }
+            if (selection.data && selection.data.sourceType === 'librivox') {
+              const panel = vscode.window.createWebviewPanel(
+                "a4m", // Identifies the type of the webview
+                "Audio for the masses", // Title of the panel displayed to the user
+                column, // Editor column to show the new webview panel in
+                options // Webview options
+              );
+              panel.reveal();
+              panel.webview.html = `
+                <html lang="en"> 
+                  <head>
+                    <meta charset="utf-8"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  </head>
+                  <body>
+                    <div>
+                      <audio controls>
+                         <br>
+                        <source src="${selection.data.url}">
+                      </audio>
+                    </div>
+                  </body>
+                </html>
+              `;
+            }
+          });
       });
   });
 
