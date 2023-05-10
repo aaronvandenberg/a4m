@@ -54,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
     const mediaItems: vscode.QuickPickItem[] = audioSources.flatMap((source) => {
       return source.audios.map((audioPath) => {
         return {
-          label: audioPath,
+          label: source.label,
           detail: "Audio", // Set detail to "Audio" to indicate that the selected item is an audio file
           alwaysShow: true,
         };
